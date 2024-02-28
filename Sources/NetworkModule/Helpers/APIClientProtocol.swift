@@ -19,6 +19,11 @@ extension HTTPClientProtocol {
                                   method: HTTPMethod = .get,
                                   parameters: [String: Any]? = nil,
                                   headers: [String: String]? = nil) async throws -> T {
-        return try await sendRequest(endpoint: endpoint, method: method, parameters: parameters, headers: headers)
+        return try await sendRequest(
+            endpoint: endpoint,
+            method: method,
+            parameters: parameters,
+            headers: headers
+        )
     }
 }
