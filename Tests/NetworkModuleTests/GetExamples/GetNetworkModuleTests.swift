@@ -7,24 +7,15 @@ final class GetNetworkModuleTests: XCTestCase {
     // This tests ensures that API request returns 401 (Unauthorized) for incorrect authentication
     func testAuthenticationFailure() async {
         // Given
-        let baseURL = URL(string: "https://omgvamp-hearthstone-v1.p.rapidapi.com/")!
-        let client = HTTPRequest(baseURL: baseURL)
-        let endpoint = "some/endpoint"
-        let method: HTTPMethod = .get
-        let invalidApiKey = "invalid_api_key" 
-        
-        let headers = [
-            "Authorization": "Bearer \(invalidApiKey)"
-        ]
+        typealias RequestResponseObject = [String:String]
+        let client = HTTPRequest()
+        let invalidApiKey = "invalid_api_key"
+        let request = GetSingleCardRequest.getSingleCard
         
         // When
         do {
-            // Perform the authenticated request
-            let _: [String:String] = try await client.sendRequest(
-                endpoint: endpoint,
-                method: method,
-                headers: headers
-            )
+            // Perform the request
+            let _: RequestResponseObject  = try await client.sendRequest(request: request)
             
             // If the request succeeds unexpectedly, fail the test
             XCTFail("Request succeeded unexpectedly")
@@ -35,7 +26,7 @@ final class GetNetworkModuleTests: XCTestCase {
                 // Ensure that the status code is 401 (Unauthorized)
                 if let urlError = responseError as? URLError,
                    let statusCode = HTTPStatusCode(rawValue: urlError.code.rawValue) {
-                    XCTAssertEqual(statusCode, .notFound, "Expected status code 401 (Unauthorized)")
+                    XCTAssertEqual(statusCode, .unauthorized, "Expected status code 401 (Unauthorized)")
                 } else {
                     XCTFail("Unexpected error: \(error)")
                 }
@@ -49,27 +40,15 @@ final class GetNetworkModuleTests: XCTestCase {
         }
     }
     
-    //This tests ensures that API request is made and response is not empty
+    // This tests ensures that API request is made and response is not empty
     func testExampleGetRequestResponseIsNotEmpty() {
+        typealias RequestResponseObject = [HeartStoneSingleCardResponse]
         let expectation = XCTestExpectation(description: "Receive response")
-        
-        let baseURL = URL(string: "https://omgvamp-hearthstone-v1.p.rapidapi.com/")!
-        let request = HTTPRequest(baseURL: baseURL)
-        
-        let endpoint = "cards/Ysera"
-        let method = HTTPMethod.get
-        let headers = [
-            "X-RapidAPI-Key": "9b7b080c9amsh8b9a685fd112a18p15d825jsn5de5cb4d4cb6",
-            "X-RapidAPI-Host": "omgvamp-hearthstone-v1.p.rapidapi.com"
-        ]
-        
+        let client = HTTPRequest()
+        let request = GetSingleCardRequest.getSingleCard
         Task {
             do {
-                let response: [HeartStoneSingleCardResponse] = try await request.sendRequest(
-                    endpoint: endpoint,
-                    method: method,
-                    headers: headers
-                )
+                let response: RequestResponseObject = try await client.sendRequest(request: request)
                 
                 print("Response:", response)
                 XCTAssert(!response.isEmpty)

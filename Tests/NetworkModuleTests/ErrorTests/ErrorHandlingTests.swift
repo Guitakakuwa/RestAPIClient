@@ -10,47 +10,33 @@ import Foundation
 @testable import NetworkModule
 
 final class ErrorHandlingTests: XCTestCase {
-    
-    func testResponseCouldNotParseRequestAndThrowsParsingError() async {
+    func testResponseCouldNotParseRequestAndThrowsParsingErrorMocked() async {
         // Given
-        let baseURL = URL(string: "https://omgvamp-hearthstone-v1.p.rapidapi.com/")!
-        let client = HTTPRequest(baseURL: baseURL)
-        let endpoint = "cards/Ysera"
-        let method: HTTPMethod = .get
-        let headers = [
-            "X-RapidAPI-Key": "9b7b080c9amsh8b9a685fd112a18p15d825jsn5de5cb4d4cb6",
-            "X-RapidAPI-Host": "omgvamp-hearthstone-v1.p.rapidapi.com"
-        ]
+        typealias RequestResponseObject = [String: String]
+        let client = HTTPRequest()
+        let request = GetSingleCardRequest.getSingleCard
         
         // When
         do {
-            let response: HeartStoneSingleCardResponse = try await client.sendRequest(
-                endpoint: endpoint,
-                method: method,
-                headers: headers
-            )
+            // Perform the request
+            let _: RequestResponseObject = try await client.sendRequest(request: request)
             
-            print("Response:", response)
-            XCTFail("Decoding should have failed with type mismatch error")
-            
+            // If the request succeeds unexpectedly, fail the test
+            XCTFail("Request succeeded unexpectedly")
         } catch let error as HTTPRequestError {
-            
             // Then
             switch error {
-            case .networkError(let decodingError as DecodingError):
-                // Ensure that the decoding error is a type mismatch error
-                switch decodingError {
-                case .typeMismatch(_, _):
-                    // Test passes if it reaches here
-                    XCTAssert(true, "Received expected type mismatch error")
-                default:
-                    XCTFail("Received decoding error, but not the expected type mismatch error")
+            case .networkError(let responseError):
+                // Ensure that the response error is a decoding error
+                if case HTTPRequestError.decodingError = responseError {
+                    XCTAssertTrue(true, "Expected decoding error")
+                } else {
+                    XCTFail("Unexpected network error: \(responseError)")
                 }
             default:
-                XCTFail("Received network error, but not the expected decoding error")
+                XCTFail("Unexpected error: \(error)")
             }
         } catch {
-            // If an unexpected error occurred, fail the test
             XCTFail("Unexpected error occurred: \(error)")
         }
     }

@@ -11,6 +11,6 @@ enum HTTPRequestError: Error {
     case invalidURL
     case networkError(Error)
     case invalidResponse
-    case decodingError(Error)
+    case decodingError
     case invalidStatusCode(Int)
 }
