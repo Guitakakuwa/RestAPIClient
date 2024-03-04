@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol HTTPClientProtocol {
+protocol APIClientProtocol {
     func sendRequest<T: Decodable, R: RequestProtocol>(request: R) async throws -> T
 }

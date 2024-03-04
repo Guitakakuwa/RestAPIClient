@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class HTTPRequest: HTTPClientProtocol {
+class APIClient: APIClientProtocol {
     private let session: URLSession
 
     init(session: URLSession = .shared) {
@@ -36,7 +36,7 @@ class HTTPRequest: HTTPClientProtocol {
     }
 }
 
-private extension HTTPRequest {
+private extension APIClient {
     func buildURL<R: RequestProtocol>(request: R) -> URL? {
         var urlComponents = URLComponents(
             url: request.baseURL.appendingPathComponent(request.path),

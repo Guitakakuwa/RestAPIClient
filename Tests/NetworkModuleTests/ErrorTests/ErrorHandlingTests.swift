@@ -13,7 +13,7 @@ final class ErrorHandlingTests: XCTestCase {
     func testResponseCouldNotParseRequestAndThrowsParsingErrorMocked() async {
         // Given
         typealias RequestResponseObject = [String: String]
-        let client = HTTPRequest()
+        let client = APIClient()
         let request = GetSingleCardRequest.getSingleCard
         
         // When

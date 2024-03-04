@@ -8,7 +8,7 @@ final class GetNetworkModuleTests: XCTestCase {
     func testAuthenticationFailure() async {
         // Given
         typealias RequestResponseObject = [String:String]
-        let client = HTTPRequest()
+        let client = APIClient()
         let invalidApiKey = "invalid_api_key"
         let request = GetSingleCardRequest.getSingleCard
         
@@ -44,7 +44,7 @@ final class GetNetworkModuleTests: XCTestCase {
     func testExampleGetRequestResponseIsNotEmpty() {
         typealias RequestResponseObject = [HeartStoneSingleCardResponse]
         let expectation = XCTestExpectation(description: "Receive response")
-        let client = HTTPRequest()
+        let client = APIClient()
         let request = GetSingleCardRequest.getSingleCard
         Task {
             do {
