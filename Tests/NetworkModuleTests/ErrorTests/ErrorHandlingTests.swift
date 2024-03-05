@@ -55,22 +55,18 @@ final class ErrorHandlingTests: XCTestCase {
             
             // If the request succeeds unexpectedly, fail the test
             XCTFail("Request succeeded unexpectedly")
-        } catch let error as HTTPRequestError {
+        } catch let error as HTTPRequestClientError {
             // Then
             switch error {
-                
             case .clientError(let statusCode, _):
-                // Ensure that the status code is 401 (Unauthorized)
                 XCTAssertEqual(
                     statusCode,
                     HTTPStatusCode.unauthorized.rawValue,
                     "Expected status code 401 (Unauthorized)"
                 )
-                break
                 
             default:
-                // If the error is not a client error, fail the test
-                XCTFail("Unexpected error: \(error)")
+                XCTFail("Unexpected error occurred: \(error)")
             }
         } catch {
             // If an unexpected error occurred, fail the test

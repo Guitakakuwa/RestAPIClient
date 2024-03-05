@@ -22,14 +22,19 @@ class APIClient: APIClientProtocol {
 
         var urlRequest = URLRequest(url: url)
         configureRequest(&urlRequest, request: request)
-
+        let responseTuple = try await performRequest(request: urlRequest)
         do {
-            let data = try await performRequest(request: urlRequest)
-            if let response = try decodeResponse(data, responseType: request.responseObjectType) as? T {
+            if let response = try decodeResponse(
+                responseTuple,
+                responseType: request.responseObjectType
+            ) as? T {
                 return response
             } else {
                 throw HTTPRequestError.decodingError
             }
+        } catch is HTTPRequestClientError {
+            let responseStatusCode = (responseTuple.1 as? HTTPURLResponse)?.statusCode ?? HTTPStatusCode.unknown.rawValue
+            throw HTTPRequestClientError.clientError(responseStatusCode, "")
         } catch {
             throw HTTPRequestError.networkError(error)
         }
@@ -61,22 +66,25 @@ private extension APIClient {
         }
     }
     
-    func performRequest(request: URLRequest) async throws -> Data {
-        let (data, _) = try await session.data(for: request)
-        return data
+    func performRequest(request: URLRequest) async throws -> (Data, URLResponse) {
+        return try await session.data(for: request)
     }
     
-    private func decodeResponse<T: Decodable>(_ data: Data, responseType: T.Type) throws -> Decodable {
+    private func decodeResponse<T: Decodable>(_ requestResponse: (Data, URLResponse), responseType: T.Type) throws -> Decodable {
         let decoder = JSONDecoder()
+        let data = requestResponse.0
+        let response = requestResponse.1
         
         if (try? decoder.decode(ErrorResponse.self, from: data)) != nil {
-            throw HTTPRequestError.clientError(HTTPStatusCode.unauthorized.rawValue, "Unauthorized request")
+            try handleResponse(requestResponse)
         }
         
         return try decoder.decode(T.self, from: data)
     }
     
-    func handleResponse(data: Data, response: URLResponse) throws {
+    func handleResponse(_ requestResponse: (Data,URLResponse)) throws {
+        let data = requestResponse.0
+        let response = requestResponse.1
         guard let httpResponse = response as? HTTPURLResponse else {
             throw HTTPRequestError.invalidResponse
         }
@@ -89,10 +97,10 @@ private extension APIClient {
             break
         case .badRequest, .unauthorized, .forbidden, .notFound:
             let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw HTTPRequestError.clientError(statusCode.rawValue, errorResponse.message)
+            throw HTTPRequestClientError.clientError(statusCode.rawValue, errorResponse.message)
         case .internalServerError:
             let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw HTTPRequestError.serverError(statusCode.rawValue, errorResponse.message)
+            throw HTTPRequestClientError.serverError(statusCode.rawValue, errorResponse.message)
         default:
             throw HTTPRequestError.invalidStatusCode(httpResponse.statusCode)
         }
