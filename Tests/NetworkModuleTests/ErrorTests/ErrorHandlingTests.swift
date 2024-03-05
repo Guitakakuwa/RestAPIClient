@@ -12,9 +12,9 @@ import Foundation
 final class ErrorHandlingTests: XCTestCase {
     func testResponseCouldNotParseRequestAndThrowsParsingError() async {
         // Given
-        typealias RequestResponseObject = [String: String]
+        typealias RequestResponseObject = [HeartStoneSingleCardResponse]
         let client = APIClient()
-        let request = GetSingleCardRequest.getSingleCard
+        let request = ErrorRequestStub.getSingleCardWithWrongParseObject
         
         // When
         do {
@@ -23,18 +23,11 @@ final class ErrorHandlingTests: XCTestCase {
             
             // If the request succeeds unexpectedly, fail the test
             XCTFail("Request succeeded unexpectedly")
-        } catch let error as HTTPRequestError {
+        } catch let error as ClientHandlingError {
             // Then
             switch error {
-            case .networkError(let responseError):
-                // Ensure that the response error is a decoding error
-                if case HTTPRequestError.decodingError = responseError {
-                    XCTAssertTrue(true, "Expected decoding error")
-                } else {
-                    XCTFail("Unexpected network error: \(responseError)")
-                }
-            default:
-                XCTFail("Unexpected error: \(error)")
+            case .decodingError:
+                XCTAssertTrue(true, "Expected decoding error")
             }
         } catch {
             XCTFail("Unexpected error occurred: \(error)")
@@ -46,7 +39,7 @@ final class ErrorHandlingTests: XCTestCase {
         // Given
         typealias RequestResponseObject = ErrorResponse
         let client = APIClient()
-        let request = GetSingleCardRequest.getSingleCard
+        let request = ErrorRequestStub.getSingleCardWithoutToken
         
         // When
         do {
@@ -64,7 +57,6 @@ final class ErrorHandlingTests: XCTestCase {
                     HTTPStatusCode.unauthorized.rawValue,
                     "Expected status code 401 (Unauthorized)"
                 )
-                
             default:
                 XCTFail("Unexpected error occurred: \(error)")
             }

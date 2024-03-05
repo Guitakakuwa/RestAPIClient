@@ -11,7 +11,6 @@ enum HTTPRequestError: Error, Equatable {
     case invalidURL
     case networkError(Error)
     case invalidResponse
-    case decodingError
     case invalidStatusCode(Int)
     
     static func == (lhs: HTTPRequestError, rhs: HTTPRequestError) -> Bool {
@@ -22,14 +21,16 @@ enum HTTPRequestError: Error, Equatable {
             return "\(error1)" == "\(error2)"
         case (.invalidResponse, .invalidResponse):
             return true
-        case (.decodingError, .decodingError):
-            return true
         case (.invalidStatusCode(let code1), .invalidStatusCode(let code2)):
             return code1 == code2
         default:
             return false
         }
     }
+}
+
+enum ClientHandlingError: Error, Equatable {
+    case decodingError
 }
 
 enum HTTPRequestClientError: Error, Equatable {

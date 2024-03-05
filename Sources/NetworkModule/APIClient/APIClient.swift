@@ -30,11 +30,13 @@ class APIClient: APIClientProtocol {
             ) as? T {
                 return response
             } else {
-                throw HTTPRequestError.decodingError
+                throw ClientHandlingError.decodingError
             }
         } catch is HTTPRequestClientError {
             let responseStatusCode = (responseTuple.1 as? HTTPURLResponse)?.statusCode ?? HTTPStatusCode.unknown.rawValue
             throw HTTPRequestClientError.clientError(responseStatusCode, "")
+        }catch is ClientHandlingError {
+            throw ClientHandlingError.decodingError
         } catch {
             throw HTTPRequestError.networkError(error)
         }
@@ -73,13 +75,16 @@ private extension APIClient {
     private func decodeResponse<T: Decodable>(_ requestResponse: (Data, URLResponse), responseType: T.Type) throws -> Decodable {
         let decoder = JSONDecoder()
         let data = requestResponse.0
-        let response = requestResponse.1
         
         if (try? decoder.decode(ErrorResponse.self, from: data)) != nil {
             try handleResponse(requestResponse)
         }
         
-        return try decoder.decode(T.self, from: data)
+        do {
+            return try decoder.decode(T.self, from: data)
+        } catch {
+            throw ClientHandlingError.decodingError
+        }
     }
     
     func handleResponse(_ requestResponse: (Data,URLResponse)) throws {
