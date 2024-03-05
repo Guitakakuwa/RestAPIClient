@@ -26,7 +26,13 @@ class MockAPIClient: APIClient {
                 throw ClientHandlingError.decodingError
             }
         } else {
-            throw NSError(domain: "MockAPIClient", code: 0, userInfo: [NSLocalizedDescriptionKey: "Response data not set"])
+            throw NSError(
+                domain: "MockAPIClient",
+                code: 0,
+                userInfo: [
+                    NSLocalizedDescriptionKey: "Response data not set"
+                ]
+            )
         }
     }
 }
