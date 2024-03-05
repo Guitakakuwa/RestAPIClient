@@ -33,10 +33,15 @@ class APIClient: APIClientProtocol {
                 throw ClientHandlingError.decodingError
             }
         } catch is HTTPRequestClientError {
-            let responseStatusCode = (responseTuple.1 as? HTTPURLResponse)?.statusCode ?? HTTPStatusCode.unknown.rawValue
+            let responseStatusCode = (
+                responseTuple.1 as? HTTPURLResponse
+            )?.statusCode ?? HTTPStatusCode.unknown.rawValue
+            
             throw HTTPRequestClientError.clientError(responseStatusCode, "")
+            
         }catch is ClientHandlingError {
             throw ClientHandlingError.decodingError
+            
         } catch {
             throw HTTPRequestError.networkError(error)
         }
@@ -46,13 +51,18 @@ class APIClient: APIClientProtocol {
 private extension APIClient {
     func buildURL<R: RequestProtocol>(request: R) -> URL? {
         var urlComponents = URLComponents(
-            url: request.baseURL.appendingPathComponent(request.path),
+            url: request.baseURL.appendingPathComponent(
+                request.path
+            ),
             resolvingAgainstBaseURL: true
         )
         
         if let parameters = request.parameters,
            request.method == .get {
-            urlComponents?.queryItems = parameters.map { URLQueryItem(name: $0, value: "\($1)") }
+            urlComponents?.queryItems = parameters.map { URLQueryItem(
+                name: $0,
+                value: "\($1)"
+            ) }
         }
         
         return urlComponents?.url
@@ -64,7 +74,9 @@ private extension APIClient {
         
         if let parameters = request.parameters,
            request.method != .get {
-            urlRequest.httpBody = try? JSONSerialization.data(withJSONObject: parameters)
+            urlRequest.httpBody = try? JSONSerialization.data(
+                withJSONObject: parameters
+            )
         }
     }
     
@@ -81,7 +93,10 @@ private extension APIClient {
         }
         
         do {
-            return try decoder.decode(T.self, from: data)
+            return try decoder.decode(
+                T.self,
+                from: data
+            )
         } catch {
             throw ClientHandlingError.decodingError
         }
@@ -101,11 +116,25 @@ private extension APIClient {
             // Success status code, do nothing
             break
         case .badRequest, .unauthorized, .forbidden, .notFound:
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw HTTPRequestClientError.clientError(statusCode.rawValue, errorResponse.message)
+            
+            let errorResponse = try JSONDecoder().decode(
+                ErrorResponse.self,
+                from: data
+            )
+            
+            throw HTTPRequestClientError.clientError(
+                statusCode.rawValue,
+                errorResponse.message
+            )
         case .internalServerError:
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw HTTPRequestClientError.serverError(statusCode.rawValue, errorResponse.message)
+            let errorResponse = try JSONDecoder().decode(
+                ErrorResponse.self,
+                from: data
+            )
+            throw HTTPRequestClientError.serverError(
+                statusCode.rawValue,
+                errorResponse.message
+            )
         default:
             throw HTTPRequestError.invalidStatusCode(httpResponse.statusCode)
         }

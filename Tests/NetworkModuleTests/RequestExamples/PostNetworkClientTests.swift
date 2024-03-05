@@ -13,7 +13,6 @@ final class PostNetworkClientTests: XCTestCase {
     
     func testExamplePostRequestResponseIsEqualRequest() async {
         typealias RequestResponseObject = CreatePostResponse
-        let expectation = XCTestExpectation(description: "Receive response")
         let client = APIClient()
         let request = ExampleRequestsStubs.postCreatePost
         do {
@@ -32,7 +31,6 @@ final class PostNetworkClientTests: XCTestCase {
                 "Expected title the same as request"
             )
             
-            expectation.fulfill()
         } catch {
             print("Error:", error)
             XCTFail("Error: \(error)")
@@ -41,7 +39,6 @@ final class PostNetworkClientTests: XCTestCase {
     
     func testExamplePostRequestResponseIsNotEqualRequest() async {
         typealias RequestResponseObject = CreatePostResponse
-        let expectation = XCTestExpectation(description: "Receive response")
         let client = APIClient()
         let request = ExampleRequestsStubs.postCreatePost
         do {
@@ -60,7 +57,6 @@ final class PostNetworkClientTests: XCTestCase {
                 "Expected title the same as request"
             )
             
-            expectation.fulfill()
         } catch {
             print("Error:", error)
             XCTFail("Error: \(error)")

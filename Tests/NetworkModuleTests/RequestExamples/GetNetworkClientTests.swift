@@ -6,7 +6,6 @@ final class GetNetworkClientTests: XCTestCase {
     // This tests ensures that API request is made and response is not empty
     func testExampleGetRequestResponseIsNotEmpty() async {
         typealias RequestResponseObject = [HeartStoneSingleCardResponse]
-        let expectation = XCTestExpectation(description: "Receive response")
         let client = APIClient()
         let request = ExampleRequestsStubs.getSingleCard
         
@@ -15,8 +14,6 @@ final class GetNetworkClientTests: XCTestCase {
             
             print("Response:", response)
             XCTAssert(!response.isEmpty)
-            
-            expectation.fulfill()
         } catch {
             print("Error:", error)
             XCTFail("Error: \(error)")
