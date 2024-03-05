@@ -10,7 +10,7 @@ protocol RequestProtocol {
     var method: HTTPMethod { get }
     var baseURL: URL { get }
     var path: String { get }
-    var headers: [String: String] { get }
+    var headers: [String: String]? { get }
     var parameters: [String: Any]? { get }
     var responseObjectType: Codable.Type { get }
 }

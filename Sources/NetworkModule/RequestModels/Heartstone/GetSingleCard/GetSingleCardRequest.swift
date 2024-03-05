@@ -27,9 +27,9 @@ enum GetSingleCardRequest: RequestProtocol {
         }
     }
     
-    var headers: [String: String] {
+    var headers: [String: String]? {
         return [
-            "X-RapidAPI-Key": "9b7b080c9amsh8b9a685fd112a18p15d825jsn5de5cb4d4cb6",
+            "X-RapidAPI-Key": "",
             "X-RapidAPI-Host": "omgvamp-hearthstone-v1.p.rapidapi.com"
         ]
     }
